@@ -22,6 +22,8 @@ import androidx.lifecycle.lifecycleScope
 import com.onesignal.OSSubscriptionObserver
 import com.onesignal.OSSubscriptionStateChanges
 import com.onesignal.OneSignal
+import com.sawolabs.androidsdk.databinding.ActivityLoginBinding
+import com.sawolabs.androidsdk.util.ConnectionLiveData
 import io.sentry.Breadcrumb
 import io.sentry.Sentry
 import io.sentry.SentryLevel
@@ -41,6 +43,7 @@ class LoginActivity : AppCompatActivity(), OSSubscriptionObserver {
     private lateinit var biometricPrompt: BiometricPrompt
     private lateinit var promptInfo: BiometricPrompt.PromptInfo
     private lateinit var cryptographyManager: CryptographyManager
+    lateinit var connectionLiveData: ConnectionLiveData
     private lateinit var mWebView: WebView
     private lateinit var dataToEncrypt: String
     private lateinit var callBackClassName: String
@@ -62,7 +65,9 @@ class LoginActivity : AppCompatActivity(), OSSubscriptionObserver {
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_login)
+        connectionLiveData = ConnectionLiveData(this)
+        val binding = ActivityLoginBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         OneSignal.addSubscriptionObserver(this)
         registerDevice()
@@ -73,8 +78,8 @@ class LoginActivity : AppCompatActivity(), OSSubscriptionObserver {
             this, ::processCancel, ::processData
         )
         promptInfo = BiometricPromptUtils.createPromptInfo(this)
-        mWebView = findViewById(R.id.webview)
-        mProgressBar = findViewById(R.id.progressBar)
+        mWebView = binding.webview
+        mProgressBar = binding.progressBar
         keyExistInStorage = cryptographyManager.isDataExistInSharedPrefs(
             this, SHARED_PREF_FILENAME, Context.MODE_PRIVATE, SHARED_PREF_ENC_PAIR_KEY
         )
@@ -82,11 +87,14 @@ class LoginActivity : AppCompatActivity(), OSSubscriptionObserver {
             BiometricManager.from(applicationContext)
                 .canAuthenticate(BIOMETRIC_STRONG) == BiometricManager
                 .BIOMETRIC_SUCCESS
+        connectionLiveData.observe(this) { isNetworkAvailable ->
+            if (!isNetworkAvailable) {
+                Toast.makeText(this, "Internet connection unavailable", Toast.LENGTH_LONG).show()
+                mWebView.destroy()
+            }
 
-        if (!isOnline(this)) {
-            Toast.makeText(this, "Internet connection unavailable", Toast.LENGTH_LONG).show()
-            mWebView.destroy()
         }
+
         sawoWebSDKURL += "&keysExistInStorage=${keyExistInStorage}&canStoreKeyInStorage=${canStoreKeyInStorage}"
         mWebView.apply {
             this.settings.javaScriptEnabled = true
@@ -126,26 +134,6 @@ class LoginActivity : AppCompatActivity(), OSSubscriptionObserver {
             mWebView.loadUrl(sawoWebSDKURL)
         }
 
-    }
-
-    private fun isOnline(context: Context): Boolean {
-        val connectivityManager =
-            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-        val capabilities =
-            connectivityManager.getNetworkCapabilities(connectivityManager.activeNetwork)
-        if (capabilities != null) {
-            if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
-                Log.i("Internet", "NetworkCapabilities.TRANSPORT_CELLULAR")
-                return true
-            } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
-                Log.i("Internet", "NetworkCapabilities.TRANSPORT_WIFI")
-                return true
-            } else if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)) {
-                Log.i("Internet", "NetworkCapabilities.TRANSPORT_ETHERNET")
-                return true
-            }
-        }
-        return false
     }
 
     override fun onDestroy() {
