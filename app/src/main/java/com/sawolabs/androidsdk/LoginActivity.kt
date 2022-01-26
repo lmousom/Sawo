@@ -43,7 +43,7 @@ class LoginActivity : AppCompatActivity(), OSSubscriptionObserver {
     private lateinit var biometricPrompt: BiometricPrompt
     private lateinit var promptInfo: BiometricPrompt.PromptInfo
     private lateinit var cryptographyManager: CryptographyManager
-    lateinit var connectionLiveData: ConnectionLiveData
+//    lateinit var connectionLiveData: ConnectionLiveData
     private lateinit var mWebView: WebView
     private lateinit var dataToEncrypt: String
     private lateinit var callBackClassName: String
@@ -65,7 +65,7 @@ class LoginActivity : AppCompatActivity(), OSSubscriptionObserver {
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        connectionLiveData = ConnectionLiveData(this)
+//        connectionLiveData = ConnectionLiveData(this)
         val binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -87,13 +87,13 @@ class LoginActivity : AppCompatActivity(), OSSubscriptionObserver {
             BiometricManager.from(applicationContext)
                 .canAuthenticate(BIOMETRIC_STRONG) == BiometricManager
                 .BIOMETRIC_SUCCESS
-        connectionLiveData.observe(this) { isNetworkAvailable ->
-            if (!isNetworkAvailable) {
-                Toast.makeText(this, "Internet connection unavailable", Toast.LENGTH_LONG).show()
-//                mWebView.destroy()
-            }
-
-        }
+//        connectionLiveData.observe(this) { isNetworkAvailable ->
+//            if (!isNetworkAvailable) {
+//                Toast.makeText(this, "Internet connection unavailable", Toast.LENGTH_LONG).show()
+//
+//            }
+//
+//        }
 
         sawoWebSDKURL += "&keysExistInStorage=${keyExistInStorage}&canStoreKeyInStorage=${canStoreKeyInStorage}"
         mWebView.apply {
