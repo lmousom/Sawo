@@ -90,7 +90,7 @@ class LoginActivity : AppCompatActivity(), OSSubscriptionObserver {
         connectionLiveData.observe(this) { isNetworkAvailable ->
             if (!isNetworkAvailable) {
                 Toast.makeText(this, "Internet connection unavailable", Toast.LENGTH_LONG).show()
-                mWebView.destroy()
+                mWebView.goBack()
             }
 
         }
