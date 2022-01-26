@@ -22,6 +22,7 @@ import retrofit2.Response
 private const val TAG = "NotificationActivity"
 
 class NotificationActivity : AppCompatActivity() {
+    private lateinit var binding: ActivityNotificationBinding
     private lateinit var biometricPrompt: BiometricPrompt
     private lateinit var promptInfo: BiometricPrompt.PromptInfo
     private lateinit var yesBtn: Button
@@ -33,7 +34,7 @@ class NotificationActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val binding = ActivityNotificationBinding.inflate(layoutInflater)
+        binding = ActivityNotificationBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         additionalData = Gson().fromJson(

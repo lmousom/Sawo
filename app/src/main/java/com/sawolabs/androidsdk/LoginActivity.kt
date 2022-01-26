@@ -44,7 +44,7 @@ class LoginActivity : AppCompatActivity(), OSSubscriptionObserver {
     private lateinit var biometricPrompt: BiometricPrompt
     private lateinit var promptInfo: BiometricPrompt.PromptInfo
     private lateinit var cryptographyManager: CryptographyManager
-    lateinit var connectionLiveData: ConnectionLiveData
+    private lateinit var connectionLiveData: ConnectionLiveData
     private lateinit var mWebView: WebView
     private lateinit var dataToEncrypt: String
     private lateinit var callBackClassName: String
@@ -66,10 +66,9 @@ class LoginActivity : AppCompatActivity(), OSSubscriptionObserver {
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        connectionLiveData = ConnectionLiveData(this)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
+        connectionLiveData = ConnectionLiveData(this)
         OneSignal.addSubscriptionObserver(this)
         registerDevice()
         sawoWebSDKURL = intent.getStringExtra(SAWO_WEBSDK_URL).toString()
